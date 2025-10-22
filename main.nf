@@ -66,6 +66,16 @@ workflow {
 
     RENAME_FASTQS(grouped_samples.R1.concat(grouped_samples.R2))
 
+    FASTQC(RENAME_FASTQS
+    .out
+    .view()
+    .map { elem -> 
+        def pref = elem.getBaseName().replace(".fastq", "")
+        [pref:pref, fq:elem]
+    }
+    .view()
+    )
+
     words_ch = Channel
               .fromPath('words.csv')
               .splitCsv(header: true)
