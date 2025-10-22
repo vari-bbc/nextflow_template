@@ -4,8 +4,8 @@ process FASTQC {
     tuple val(fq_pref), path("${fq_pref}.fastq.gz")
 
   output:
-    path "${fq_pref}_fastqc.html"
-    path "${fq_pref}_fastqc.zip"
+    path "${fq_pref}_fastqc.html", emit: html
+    path "${fq_pref}_fastqc.zip", emit: zip
 
   script:
     """

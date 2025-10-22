@@ -7,9 +7,8 @@
 */
 
 include { FASTQC } from './modules/fastqc'
-include { CAT_FASTQS } from './modules/rename_fastqs'
-include { SYMLINK_FASTQS } from './modules/rename_fastqs'
 include { RENAME_FASTQS } from './modules/rename_fastqs'
+include { MULTIQC } from './modules/multiqc'
 
 
 nextflow.preview.output = true
@@ -64,16 +63,20 @@ workflow {
     }
     .set { grouped_samples }
 
-    RENAME_FASTQS(grouped_samples.R1.concat(grouped_samples.R2))
+    renamed_fastqs = RENAME_FASTQS(grouped_samples.R1.concat(grouped_samples.R2))
 
-    FASTQC(RENAME_FASTQS
+    fastqc = FASTQC(RENAME_FASTQS
     .out
-    .view()
     .map { elem -> 
         def pref = elem.getBaseName().replace(".fastq", "")
         [pref:pref, fq:elem]
     }
-    .view()
+    )
+
+    multiqc = MULTIQC(
+        FASTQC.out.html.
+        map { elem -> elem.getParent() }
+        .collect()
     )
 
     words_ch = Channel
@@ -95,6 +98,9 @@ workflow {
     publish:
     count_out = count_ch
     sum_out = sum_ch
+    renamed_fastqs_out = renamed_fastqs
+    fastqc_out = fastqc.html // "Cannot assign a multi-channel to a workflow output: fastqc_out"
+    multiqc_out = multiqc
 
 }
 
@@ -104,6 +110,15 @@ output {
     }
     sum_out {
         path 'step2'
+    }
+    renamed_fastqs_out {
+        path 'renamed_fastqs'
+    }
+    fastqc_out {
+        path 'fastqc'
+    }
+    multiqc_out {
+        path 'multiqc'
     }
 }
 
