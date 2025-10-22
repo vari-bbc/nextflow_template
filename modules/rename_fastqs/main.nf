@@ -12,26 +12,28 @@
 //     """
 // }
 
-// process RENAME_FASTQS {
-//     tag "$sample"
+process RENAME_FASTQS {
+    tag "$sample"
 
-//     input:
-//     tuple val(sample), val(fastqs), val(suffix), val(num_fqs)
+    input:
+    tuple val(sample), path(fastq), val(suffix)
 
-//     output:
-//     path "${sample}_${suffix}.fastq.gz"
+    output:
+    path "${sample}_${suffix}.fastq.gz"
 
-//     script:
-//     """
-//     if [ ${num_fqs} -gt 1 ]
-//     then
-//         cat ${fastqs} > "${sample}_${suffix}.fastq.gz"
-//     else
-//         ln -sr ${fastqs} "${sample}_${suffix}.fastq.gz"
-//     fi
+    script:
+    if (fastq.size() == 1) {
+        """
+        ln -s ${fastq[0]} "${sample}_${suffix}.fastq.gz"
 
-//     """
-// }
+        """
+    } else {
+        """
+        cat ${fastq.join(' ')} > "${sample}_${suffix}.fastq.gz"
+
+        """
+    }
+}
 
 
 process CAT_FASTQS {
