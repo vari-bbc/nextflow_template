@@ -51,7 +51,7 @@ process sum_letter_counts {
 workflow {
     main:
 
-    Channel.fromPath('assets/samplesheet.csv')
+    Channel.fromPath(params.input)
     .splitCsv(header: true)
     .map { row -> 
         tuple(row.sample, file("raw_data/" + row.fq1), file("raw_data/" + row.fq2))

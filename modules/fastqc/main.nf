@@ -1,4 +1,6 @@
 process FASTQC {
+    tag "$fq_pref"
+    label 'process_medium'
     module 'bbc2/fastqc/fastqc-0.12.1'
   input:
     tuple val(fq_pref), path("${fq_pref}.fastq.gz")

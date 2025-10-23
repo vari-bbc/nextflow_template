@@ -1,6 +1,6 @@
 process RENAME_FASTQS {
     tag "$sample"
-
+    label 'process_medium'
     input:
     tuple val(sample), path(fastq), val(suffix)
 
